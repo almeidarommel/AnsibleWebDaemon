@@ -1,0 +1,15 @@
+GEM
+  remote: http://rubygems.org/
+  remote: http://gems.github.com/
+  specs:
+    daemons (1.1.9)
+    json (1.8.2)
+    redis (3.2.1)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  daemons (= 1.1.9)
+  json
+  redis
