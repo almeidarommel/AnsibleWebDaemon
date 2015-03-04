@@ -7,12 +7,12 @@
 
 require 'yaml'
 require 'daemons'
-require File.join(File.expand_path(File.dirname(__FILE__)), 'lib/mdb')
+require File.join(File.expand_path(File.dirname(__FILE__)), 'lib/master')
 
 config = YAML.load_file(File.join(File.expand_path(File.dirname(__FILE__)), 'config.yml'))
 
 Daemons.run_proc('') do
   loop do
-  	MDB::main(config)
+  	Master::main(config)
   end
 end

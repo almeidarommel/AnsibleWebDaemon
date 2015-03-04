@@ -5,7 +5,7 @@
 # Daemon responsál por consumir lotes no redis, mensagens criadas pela app
 # AnsibleWeb, e executalas usando o script ansible.py
 
-module MDB
+module Master
 	extend self
 
 	def alert(msg)
@@ -13,10 +13,10 @@ module MDB
 	end
 
 	def parseYAML(config)
-		if config["ansible"]["usuario"].nil? then MDB::alert 'Error: ["ansible"]["usuario"] Not found in config.yml !!!'; exit; end
-		if config["ansible"]["senha"].nil? then MDB::alert 'Error: ["ansible"]["senha"] Not found in config.yml !!!'; exit; end
-		if config["redis"]["fila"].nil? then MDB::alert 'Error: ["redis"]["fila"] Not found in config.yml !!!'; exit; end
-		if config["webservice"]["master"].nil? then MDB::alert 'Error: ["webservice"]["master"] Not found in config.yml !!!'; exit; end
+		if config["ansible"]["usuario"].nil? then Master::alert 'Error: ["ansible"]["usuario"] Not found in config.yml !!!'; exit; end
+		if config["ansible"]["senha"].nil? then Master::alert 'Error: ["ansible"]["senha"] Not found in config.yml !!!'; exit; end
+		if config["redis"]["fila"].nil? then Master::alert 'Error: ["redis"]["fila"] Not found in config.yml !!!'; exit; end
+		if config["webservice"]["master"].nil? then Master::alert 'Error: ["webservice"]["master"] Not found in config.yml !!!'; exit; end
         end
 
 	def ansible(lote)
@@ -39,9 +39,9 @@ module MDB
 					@servidorDominio = servidor["dominio"]
 				end
 			end
-			#MDB::alert "Starting lote processing. Lote: #{lote}"			
+			#Master::alert "Starting lote processing. Lote: #{lote}"			
 		rescue
-			MDB::alert "Error: on lote format !!!"
+			Master::alert "Error: on lote format !!!"
 		end
 
 		if @servidorDominio == "" && @grupoDominio == "" then
@@ -60,7 +60,7 @@ module MDB
                 	inventoryFile.close
                 	@file = inventoryFile.path
 		rescue
-			MDB::alert "Error: creating file !!!"
+			Master::alert "Error: creating file !!!"
 		end
 
 
@@ -69,7 +69,7 @@ module MDB
                 	@retorno = %x["#{@bin}" "#{@file}" "#{@senhaSSH}" "#{@comando}" ]
 			puts @retorno
 		rescue
-			 MDB::alert "Error: when running lote !!!"
+			 Master::alert "Error: when running lote !!!"
 		end
 
                 inventoryFile.unlink
@@ -81,19 +81,19 @@ module MDB
 		require 'json'
 		require 'yaml'
 		
-		MDB::parseYAML(config)
+		Master::parseYAML(config)
 
 		begin
 			r = Redis.new
 			msg = r.blpop(config["redis"]["fila"], :timeout => 0)
 			lote = JSON.parse(msg[1])
 		rescue
-			MDB::alert "Error: at connect to redis !!!"
+			Master::alert "Error: at connect to redis !!!"
 			sleep 3
 		end
 
 		@usuarioSSH = config["ansible"]["usuario"]
 		@senhaSSH = config["ansible"]["senha"]
-		MDB::ansible(lote)
+		Master::ansible(lote)
 	end
 end
