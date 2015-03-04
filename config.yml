@@ -1,0 +1,9 @@
+redis:
+ fila: "fila::ansible"
+
+ansible:
+ usuario: ""
+ senha: ""
+
+webservice:
+ master: "dominio.com"
